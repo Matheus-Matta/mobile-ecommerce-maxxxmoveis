@@ -28,6 +28,15 @@ yarn-error.*
 
 # macOS
 .DS_Store
+
+# Env files — NEVER commit secrets
+.env
+.env.local
+.env.production
+
+# google-services (add your own to the project)
+google-services.json
+GoogleService-Info.plist
 *.pem
 
 # local env files
