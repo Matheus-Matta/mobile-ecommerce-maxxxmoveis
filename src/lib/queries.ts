@@ -1,5 +1,161 @@
 // ─── Shopify Storefront GraphQL Queries ──────────────────────────────────────
 
+// ─── Menu ─────────────────────────────────────────────────────────────────────
+export const GET_MENU = `#graphql
+  query GetMenu($handle: String!) {
+    menu(handle: $handle) {
+      handle
+      title
+      items {
+        id
+        title
+        url
+        type
+        resourceId
+        items {
+          id
+          title
+          url
+          type
+          resourceId
+        }
+      }
+    }
+  }
+`;
+
+// ─── Metaobjects ──────────────────────────────────────────────────────────────
+export const GET_METAOBJECTS = `#graphql
+  query GetMetaobjects($type: String!, $first: Int!) {
+    metaobjects(type: $type, first: $first) {
+      edges {
+        node {
+          id
+          handle
+          type
+          fields {
+            key
+            value
+            reference {
+              ... on MediaImage {
+                image {
+                  url
+                  altText
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_METAOBJECT_BY_HANDLE = `#graphql
+  query GetMetaobjectByHandle($type: String!, $handle: String!) {
+    metaobject(handle: { type: $type, handle: $handle }) {
+      id
+      handle
+      type
+      fields {
+        key
+        value
+        reference {
+          ... on MediaImage {
+            image {
+              url
+              altText
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_APP_BANNERS = `#graphql
+  query AppBanners($type: String!, $first: Int!) {
+    metaobjects(type: $type, first: $first, sortKey: "updated_at", reverse: true) {
+      nodes {
+        id
+        handle
+        type
+        updatedAt
+        fields {
+          key
+          type
+          value
+          reference {
+            __typename
+            ... on MediaImage {
+              id
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+        title: field(key: "title") {
+          value
+        }
+        subtitle: field(key: "subtitle") {
+          value
+        }
+        link: field(key: "link") {
+          value
+        }
+        linkUrl: field(key: "link_url") {
+          value
+        }
+        active: field(key: "active") {
+          value
+        }
+        sortOrder: field(key: "sort_order") {
+          value
+        }
+        position: field(key: "position") {
+          value
+        }
+        image: field(key: "image") {
+          type
+          value
+          reference {
+            __typename
+            ... on MediaImage {
+              id
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+        mobileImage: field(key: "mobile_image") {
+          type
+          value
+          reference {
+            __typename
+            ... on MediaImage {
+              id
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const GET_PRODUCTS = `#graphql
   query GetProducts($first: Int!, $after: String, $query: String) {
     products(first: $first, after: $after, query: $query) {

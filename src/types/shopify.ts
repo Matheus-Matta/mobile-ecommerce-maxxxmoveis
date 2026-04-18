@@ -116,3 +116,52 @@ export interface PageInfo {
   hasNextPage: boolean;
   endCursor: string | null;
 }
+
+// ─── Menu ─────────────────────────────────────────────────────────────────────
+
+export interface MenuItem {
+  id: string;
+  title: string;
+  url: string;
+  type: string;
+  resourceId: string | null;
+  /** Handle extraído da URL (ex: "cozinha" de "/collections/cozinha") */
+  handle?: string;
+  items: MenuItem[];
+}
+
+export interface ShopifyMenu {
+  handle: string;
+  title: string;
+  items: MenuItem[];
+}
+
+// ─── Metaobjects ──────────────────────────────────────────────────────────────
+
+export interface MetaobjectField {
+  key: string;
+  type?: string;
+  value: string | null;
+  reference?: {
+    image?: {
+      url: string;
+      altText: string | null;
+    };
+  } | null;
+}
+
+export interface Metaobject {
+  id: string;
+  handle: string;
+  type: string;
+  fields: MetaobjectField[];
+}
+
+/** Banner mapeado a partir de um Metaobject do tipo hero_banner */
+export interface BannerMetaobject {
+  id: string;
+  imageUrl: string;
+  linkUrl?: string;
+  alt?: string;
+  position: number;
+}

@@ -6,89 +6,50 @@ import {
   TouchableOpacity,
   Dimensions,
   Linking,
+  ActivityIndicator,
+  StyleSheet,
 } from "react-native";
+import { useQuery } from "@tanstack/react-query";
+import { fetchBanners } from "@/services/shopify.service";
+import type { BannerMetaobject } from "@/types/shopify";
+import { APP_COLORS } from "@/theme/colors";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const BANNER_HEIGHT = 180;
-const AUTO_PLAY_MS = 6000;
+const BANNER_HEIGHT = 200;
+const AUTO_PLAY_MS = 8000;
+const PADDING_H = 16;
+const BANNER_WIDTH = SCREEN_WIDTH - PADDING_H * 2;
 
-export interface BannerSlide {
+interface BannerSlide {
   id: string;
   imageUrl: string;
   linkUrl?: string;
   alt?: string;
 }
 
-// Banners reais do site maxxxmoveis.com.br
-export const REAL_BANNERS: BannerSlide[] = [
-  {
-    id: "1",
-    imageUrl:
-      "https://maxxxmoveis.com.br/cdn/shop/files/1920x600.png?v=1775576232&width=1080",
-    linkUrl: "https://maxxxmoveis.com.br/collections/promocoes",
-    alt: "Promoções",
-  },
-  {
-    id: "2",
-    imageUrl:
-      "https://maxxxmoveis.com.br/cdn/shop/files/banner-vantagens.png?v=1776216067&width=1080",
-    alt: "Vantagens",
-  },
-  {
-    id: "3",
-    imageUrl:
-      "https://maxxxmoveis.com.br/cdn/shop/files/localizacao_maxx_site_a4c58277-110a-4ca5-98ea-a4cbd2db26fa_1.jpg?v=1775582657&width=1080",
-    alt: "Nossa loja",
-  },
-  {
-    id: "4",
-    imageUrl:
-      "https://maxxxmoveis.com.br/cdn/shop/files/Site_9.png?v=1768402340&width=1080",
-    linkUrl: "https://www.instagram.com/maxmoveis_oficial/",
-    alt: "Instagram",
-  },
-  {
-    id: "5",
-    imageUrl:
-      "https://maxxxmoveis.com.br/cdn/shop/files/SAC_1.png?v=1762970802&width=1080",
-    alt: "Atendimento",
-  },
-];
 
-interface Props {
-  slides?: BannerSlide[];
-  height?: number;
-  autoPlay?: boolean;
-}
+export default function HeroBanner() {
+  const { data: apiBanners, isLoading } = useQuery<BannerMetaobject[]>({
+    queryKey: ["banners", process.env.EXPO_PUBLIC_BANNER_METAOBJECT_TYPE],
+    queryFn: fetchBanners,
+    staleTime: 5 * 60 * 1000,
+  });
 
-export default function HeroBanner({
-  slides = REAL_BANNERS,
-  height = BANNER_HEIGHT,
-  autoPlay = true,
-}: Props) {
+  useEffect(() => {
+    if (!apiBanners) return;
+    console.log("[HeroBanner] banners metaobjects:", apiBanners);
+  }, [apiBanners]);
+
+  const slides: BannerSlide[] = (apiBanners ?? []).map((b) => ({
+    id: b.id,
+    imageUrl: b.imageUrl,
+    linkUrl: b.linkUrl,
+    alt: b.alt,
+  }));
+
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList<BannerSlide>>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const goTo = useCallback(
-    (index: number) => {
-      const next = (index + slides.length) % slides.length;
-      flatListRef.current?.scrollToIndex({ index: next, animated: true });
-      setActiveIndex(next);
-    },
-    [slides.length]
-  );
-
-  const startAutoPlay = useCallback(() => {
-    if (!autoPlay) return;
-    timerRef.current = setInterval(() => {
-      setActiveIndex((prev) => {
-        const next = (prev + 1) % slides.length;
-        flatListRef.current?.scrollToIndex({ index: next, animated: true });
-        return next;
-      });
-    }, AUTO_PLAY_MS);
-  }, [autoPlay, slides.length]);
 
   const stopAutoPlay = useCallback(() => {
     if (timerRef.current) {
@@ -97,33 +58,62 @@ export default function HeroBanner({
     }
   }, []);
 
+  const startAutoPlay = useCallback(() => {
+    if (slides.length <= 1) return;
+    stopAutoPlay();
+    timerRef.current = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % slides.length;
+        flatListRef.current?.scrollToIndex({ index: next, animated: true });
+        return next;
+      });
+    }, AUTO_PLAY_MS);
+  }, [slides.length, stopAutoPlay]);
+
   useEffect(() => {
     startAutoPlay();
     return stopAutoPlay;
   }, [startAutoPlay, stopAutoPlay]);
 
-  const handlePress = (slide: BannerSlide) => {
-    if (slide.linkUrl) Linking.openURL(slide.linkUrl);
-  };
+  useEffect(() => {
+    if (activeIndex >= slides.length) {
+      setActiveIndex(0);
+    }
+  }, [activeIndex, slides.length]);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.loadingBox, { marginHorizontal: PADDING_H }]}>
+        <ActivityIndicator color={APP_COLORS.primary} />
+      </View>
+    );
+  }
+
+  if (slides.length === 0) {
+    return null;
+  }
 
   return (
-    <View>
+    <View style={styles.wrapper}>
       <FlatList
         ref={flatListRef}
         data={slides}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
+        snapToInterval={BANNER_WIDTH + 12}
+        decelerationRate="fast"
+        contentContainerStyle={styles.listContent}
         keyExtractor={(item) => item.id}
         getItemLayout={(_, index) => ({
-          length: SCREEN_WIDTH,
-          offset: SCREEN_WIDTH * index,
+          length: BANNER_WIDTH + 12,
+          offset: (BANNER_WIDTH + 12) * index,
           index,
         })}
         onScrollBeginDrag={stopAutoPlay}
         onMomentumScrollEnd={(e) => {
           const index = Math.round(
-            e.nativeEvent.contentOffset.x / SCREEN_WIDTH
+            e.nativeEvent.contentOffset.x / (BANNER_WIDTH + 12)
           );
           setActiveIndex(index);
           startAutoPlay();
@@ -131,12 +121,12 @@ export default function HeroBanner({
         renderItem={({ item }) => (
           <TouchableOpacity
             activeOpacity={item.linkUrl ? 0.9 : 1}
-            onPress={() => handlePress(item)}
-            style={{ width: SCREEN_WIDTH }}
+            onPress={() => item.linkUrl && Linking.openURL(item.linkUrl)}
+            style={styles.slide}
           >
             <Image
               source={{ uri: item.imageUrl }}
-              style={{ width: SCREEN_WIDTH, height }}
+              style={styles.slideImage}
               resizeMode="cover"
               accessibilityLabel={item.alt}
             />
@@ -146,16 +136,20 @@ export default function HeroBanner({
 
       {/* Dots */}
       {slides.length > 1 && (
-        <View className="flex-row justify-center gap-2 py-2.5">
+        <View style={styles.dots}>
           {slides.map((_, i) => (
-            <TouchableOpacity key={i} onPress={() => goTo(i)}>
+            <TouchableOpacity
+              key={i}
+              onPress={() => {
+                flatListRef.current?.scrollToIndex({ index: i, animated: true });
+                setActiveIndex(i);
+              }}
+            >
               <View
-                style={{
-                  width: i === activeIndex ? 18 : 7,
-                  height: 7,
-                  borderRadius: 4,
-                  backgroundColor: i === activeIndex ? "#0058BB" : "#d4d4d8",
-                }}
+                style={[
+                  styles.dot,
+                  i === activeIndex ? styles.dotActive : styles.dotInactive,
+                ]}
               />
             </TouchableOpacity>
           ))}
@@ -164,3 +158,60 @@ export default function HeroBanner({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    marginBottom: 8,
+  },
+  loadingBox: {
+    height: BANNER_HEIGHT,
+    borderRadius: 12,
+    backgroundColor: "#e5e7eb",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  listContent: {
+    paddingHorizontal: PADDING_H,
+    gap: 12,
+  },
+  slide: {
+    width: BANNER_WIDTH,
+    height: BANNER_HEIGHT,
+    borderRadius: 12,
+    overflow: "hidden",
+    // sombra equivalente ao HTML: shadow-[0_8px_24px_rgba(79,93,140,0.2)]
+    shadowColor: "#4f5d8c",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 6,
+  },
+  // imagem ocupando todo o card do banner
+  slideImage: {
+    width: "100%",
+    height: "100%",
+  },
+  // dots
+  dots: {
+    position: "absolute",
+    bottom: 12,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+  },
+  dot: {
+    height: 7,
+    borderRadius: 4,
+  },
+  dotActive: {
+    width: 20,
+    backgroundColor: APP_COLORS.surface,
+  },
+  dotInactive: {
+    width: 7,
+    backgroundColor: "#d1d5db",
+  },
+});

@@ -9,9 +9,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Paleta oficial do app (registrada para uso consistente)
+        app: {
+          blue:  "#0058bb",
+          white: "#ffffff",
+          red:   "#ef4444",
+          // preto já usado no sistema
+          black: "#1a1c1c",
+        },
         // cores reais do site maxxxmoveis.com.br
         brand: {
-          DEFAULT: "#0058BB",
+          DEFAULT: "#0058bb",
           hover:   "#004A9D",
           dark:    "#1a1c1c",
           light:   "#f7f7f7",
