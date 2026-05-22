@@ -122,6 +122,25 @@ eas build -p ios --profile production
 
 Antes do build real, configure `EAS_PROJECT_ID`, credenciais EAS/Firebase/APNs e substitua os assets provisórios pelos arquivos finais da marca.
 
+## Release Android via GitHub Actions
+
+Ao publicar uma nova tag no GitHub, o workflow `.github/workflows/android-release.yml` gera um APK Android usando o perfil EAS `preview`, salva o arquivo como artifact da execução e anexa o APK ao GitHub Release da tag.
+
+O workflow precisa estar commitado e enviado para o GitHub antes da tag ser criada/enviada.
+
+Configure no repositório:
+
+- Secret `EXPO_TOKEN`: token de acesso do Expo/EAS.
+- Secret opcional `GOOGLE_SERVICES_JSON`: conteúdo completo do arquivo `google-services.json`, se o app precisar dele.
+- Variables opcionais: `EAS_PROJECT_ID`, `EXPO_PUBLIC_SITE_URL`, `EXPO_PUBLIC_ALLOWED_ORIGINS`, `EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_NOTIFICATION_CHANNEL_ID` e `EXPO_PUBLIC_PUSH_TOKEN_STORAGE_KEY`.
+
+Exemplo para disparar:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
 ## Backend De Notificações
 
 O backend do guia foi criado em `notifications-api/`.
