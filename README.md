@@ -1,207 +1,142 @@
-# Maxxx Móveis — App Mobile
+# Maxxx Móveis - App Mobile
 
-E-commerce mobile para Android e iOS construído com **Expo React Native**, **NativeWind (Tailwind CSS)** e **Shopify Storefront API**.
+App mobile Expo/React Native que abre o site da Maxxx Móveis em uma WebView segura, com suporte a push notifications, tela offline, tratamento de erros e abertura de links externos fora do app.
 
----
+## Requisitos
 
-## Pré-requisitos
+- Node.js 18+
+- npm
+- Expo CLI via `npx expo`
+- Aparelho físico para testar push notification
+- Site HTTPS acessível e responsivo
 
-| Ferramenta | Versão mínima | Instalar |
-|---|---|---|
-| Node.js | 18+ | https://nodejs.org |
-| npm | 9+ | (vem com Node) |
-| Git | qualquer | https://git-scm.com |
-| Expo Go (celular) | atual | [Android](https://play.google.com/store/apps/details?id=host.exp.exponent) / [iOS](https://apps.apple.com/app/expo-go/id982107779) |
-| Expo CLI (opcional) | atual | `npm install -g expo-cli` |
-
----
-
-## 1. Clonar o repositório
-
-```bash
-git clone https://github.com/Matheus-Matta/mobile-ecommerce-maxxxmoveis.git
-cd mobile-ecommerce-maxxxmoveis
-```
-
----
-
-## 2. Instalar dependências
+## Instalação
 
 ```bash
 npm install
-```
-
----
-
-## 3. Configurar variáveis de ambiente
-
-Copie o arquivo de exemplo e preencha com suas credenciais Shopify:
-
-```bash
 cp .env.example .env
-```
-
-Edite o arquivo `.env`:
-
-```env
-EXPO_PUBLIC_SHOPIFY_STORE_DOMAIN=sua-loja.myshopify.com
-EXPO_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN=seu-token-aqui
-EXPO_PUBLIC_SHOPIFY_API_VERSION=2025-04
-```
-
-### Como obter o token Shopify
-
-1. No painel do Shopify: **Configurações → Apps e canais de venda → Desenvolver apps**
-2. Clique em **Criar um app**
-3. Em **Configuração da API Storefront**, habilite as permissões:
-   - `unauthenticated_read_product_listings`
-   - `unauthenticated_read_product_inventory`
-   - `unauthenticated_write_checkouts`
-   - `unauthenticated_read_checkouts`
-   - `unauthenticated_write_customers`
-   - `unauthenticated_read_customer_tags` (para autenticação)
-4. Copie o **Storefront API access token**
-
----
-
-## 4. Iniciar o servidor de desenvolvimento
-
-```bash
 npm start
 ```
 
-O terminal exibirá um QR code. Escaneie com o app **Expo Go** no celular.
+O Expo iniciará o Metro Bundler. Abra no Expo Go ou em um development build.
 
-### Atalhos para emuladores
+## Variáveis de Ambiente
+
+Configure o arquivo `.env`:
+
+```env
+APP_ENV=development
+EAS_PROJECT_ID=
+EXPO_PUBLIC_SITE_URL=https://maxxxmoveis.com.br
+EXPO_PUBLIC_ALLOWED_ORIGINS=https://maxxxmoveis.com.br,https://www.maxxxmoveis.com.br
+EXPO_PUBLIC_API_URL=https://api.maxxxmoveis.com.br
+EXPO_PUBLIC_NOTIFICATION_CHANNEL_ID=maxxx-moveis-default
+EXPO_PUBLIC_PUSH_TOKEN_STORAGE_KEY=expo_push_token
+```
+
+`EAS_PROJECT_ID` é necessário para gerar o Expo Push Token em aparelho físico.
+
+`EXPO_PUBLIC_API_URL` deve apontar para a API Next.js de notificações. Em celular físico, use uma URL acessível pelo aparelho, por exemplo um domínio HTTPS ou o IP da sua máquina na rede local.
+
+## Scripts
 
 ```bash
-# Android (requer Android Studio + emulador configurado)
+npm start
 npm run android
-
-# iOS (requer macOS + Xcode)
 npm run ios
-
-# Web (apenas para testes)
-npm run web
-```
-
----
-
-## Estrutura do projeto
-
-```
-mobile-ecommerce-maxxxmoveis/
-├── app/                          # Rotas (Expo Router)
-│   ├── _layout.tsx               # Root layout (providers globais)
-│   ├── (tabs)/
-│   │   ├── _layout.tsx           # Tab bar
-│   │   ├── index.tsx             # Tela inicial (Home)
-│   │   ├── search.tsx            # Busca de produtos
-│   │   ├── cart.tsx              # Carrinho
-│   │   ├── orders.tsx            # Pedidos
-│   │   └── profile.tsx           # Perfil / Login
-│   ├── product/
-│   │   └── [handle].tsx          # Detalhe do produto
-│   └── collection/
-│       └── [handle].tsx          # Produtos de uma coleção
-│
-├── src/
-│   ├── lib/
-│   │   ├── shopify.ts            # Client Shopify Storefront API
-│   │   ├── queries.ts            # GraphQL queries e mutations
-│   │   └── notifications.ts      # Push notifications (Expo)
-│   ├── services/
-│   │   └── shopify.service.ts    # Funções de acesso à API
-│   ├── store/
-│   │   ├── cartStore.ts          # Estado do carrinho (Zustand)
-│   │   └── authStore.ts          # Auth do cliente (Zustand)
-│   ├── types/
-│   │   └── shopify.ts            # Tipos TypeScript
-│   └── utils/
-│       └── format.ts             # Formatação de moeda
-│
-├── assets/                       # Ícones e imagens
-├── global.css                    # Entrypoint Tailwind
-├── tailwind.config.js            # Configuração Tailwind
-├── babel.config.js               # NativeWind babel preset
-├── app.json                      # Configuração Expo
-├── .env.example                  # Modelo de variáveis de ambiente
-└── tsconfig.json                 # TypeScript config
-```
-
----
-
-## Tecnologias
-
-| Tecnologia | Uso |
-|---|---|
-| Expo SDK 54 + Expo Router | Navegação file-based + build nativo |
-| React Native 0.81 | Framework mobile |
-| NativeWind v4 (Tailwind CSS) | Estilização utilitária |
-| Shopify Storefront API v2025-04 | Catálogo, carrinho e checkout |
-| React Query (@tanstack/react-query) | Cache e sincronização de dados |
-| Zustand | Gerenciamento de estado global |
-| Expo Notifications | Push notifications (Android + iOS) |
-| TypeScript | Tipagem estática |
-
----
-
-## Funcionalidades
-
-- **Home** — banner, categorias e produtos em destaque
-- **Busca** — pesquisa de produtos em tempo real
-- **Detalhe do produto** — galeria, seleção de variante, add ao carrinho
-- **Carrinho** — gerenciar itens, atualizar quantidades, checkout via Shopify
-- **Pedidos** — histórico do cliente autenticado
-- **Perfil** — login e cadastro via Shopify Customer API
-- **Notificações** — push notifications para Android e iOS
-
----
-
-## Push Notifications em produção
-
-1. Crie uma conta em https://expo.dev e instale o EAS CLI:
-   ```bash
-   npm install -g eas-cli
-   eas login
-   eas build:configure
-   ```
-
-2. Atualize o `projectId` no `app.json`:
-   ```json
-   "extra": {
-     "eas": { "projectId": "seu-id-aqui" }
-   }
-   ```
-
-3. Para Android, adicione o arquivo `google-services.json` (Firebase Cloud Messaging) na raiz do projeto.
-
----
-
-## Build para produção
-
-```bash
-# Android (.apk / .aab)
-eas build --platform android
-
-# iOS (.ipa — requer conta Apple Developer)
-eas build --platform ios
-
-# Ambos
-eas build --platform all
-```
-
----
-
-## Comandos úteis
-
-```bash
-# Limpar cache do Metro bundler
-npx expo start --clear
-
-# Verificar erros TypeScript
 npx tsc --noEmit
-
-# Atualizar dependências Expo
-npx expo install --check
+npx expo-doctor
 ```
+
+## Estrutura
+
+```txt
+App.tsx
+src/
+  components/
+    LoadingScreen.tsx
+    OfflineScreen.tsx
+    WebViewScreen.tsx
+  hooks/
+    useNetworkStatus.ts
+    useNotifications.ts
+  constants.ts
+app.config.js
+eas.json
+```
+
+## Recursos Implementados
+
+- WebView com `originWhitelist`
+- Navegação do domínio Maxxx Móveis dentro da própria WebView
+- Links com `target="_blank"` e `window.open` abrindo fora do app
+- Links fora de `maxxxmoveis.com.br` abrindo fora do app
+- `thirdPartyCookiesEnabled={false}`
+- Cache WebView habilitado
+- Tela de carregamento
+- Tela offline com retry
+- Tratamento de `onError` e `onHttpError`
+- Botão voltar Android navegando no histórico da WebView
+- Push token salvo no SecureStore
+- Envio do token para a WebView apenas uma vez por sessão
+- Envio de `{ userId, token, platform }` para `/api/device-token` após `USER_LOGGED`
+- Handler para URL recebida via notificação
+- Notificação local de teste apenas em desenvolvimento
+- Configuração EAS para development, preview e production
+
+## Comunicação Site -> App
+
+O site deve avisar quando estiver pronto para receber o push token:
+
+```html
+<script>
+  function notificarPaginaPronta() {
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: "PAGE_READY" }));
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", notificarPaginaPronta);
+</script>
+```
+
+No login, envie:
+
+```js
+window.ReactNativeWebView.postMessage(
+  JSON.stringify({
+    type: "USER_LOGGED",
+    userId,
+    email,
+  })
+);
+```
+
+## Build
+
+```bash
+eas build -p android --profile preview
+eas build -p android --profile production
+eas build -p ios --profile production
+```
+
+Antes do build real, configure `EAS_PROJECT_ID`, credenciais EAS/Firebase/APNs e substitua os assets provisórios pelos arquivos finais da marca.
+
+## Backend De Notificações
+
+O backend do guia foi criado em `notifications-api/`.
+
+```bash
+cd notifications-api
+npm install
+cp .env.example .env
+npm run dev
+```
+
+Endpoints principais:
+
+- `POST /api/device-token`: recebe `{ userId, token, platform }`.
+- `POST /api/notifications/send`: envia notificação via Expo Push Service. Requer header `x-api-key`.
+- `POST /api/notifications/receipts`: consulta receipts da Expo e marca tokens inválidos.
+
+O backend usa memória como armazenamento local de desenvolvimento. Em produção, substitua `notifications-api/lib/db.ts` por PostgreSQL, MySQL ou MongoDB.
