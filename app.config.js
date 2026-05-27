@@ -8,7 +8,23 @@ const EAS_PROJECT_ID =
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "";
 const WEBVIEW_URL =
   process.env.EXPO_PUBLIC_SITE_URL || "https://maxxxmoveis.com.br";
-const HAS_GOOGLE_SERVICES = fs.existsSync("./google-services.json");
+const GOOGLE_SERVICES_ANDROID =
+  process.env.GOOGLE_SERVICES_JSON && fs.existsSync(process.env.GOOGLE_SERVICES_JSON)
+    ? process.env.GOOGLE_SERVICES_JSON
+    : fs.existsSync("./google-services.json")
+    ? "./google-services.json"
+    : null;
+
+const GOOGLE_SERVICES_IOS =
+  process.env.GOOGLE_SERVICES_PLIST && fs.existsSync(process.env.GOOGLE_SERVICES_PLIST)
+    ? process.env.GOOGLE_SERVICES_PLIST
+    : fs.existsSync("./GoogleService-Info.plist")
+    ? "./GoogleService-Info.plist"
+    : null;
+
+const ICON = "./assets/icon.png";
+const ADAPTIVE_ICON = "./assets/adaptive-icon.png";
+const NOTIFICATION_ICON = "./assets/notification-icon.png";
 
 /** @type {import('expo/config').ExpoConfig} */
 const config = {
@@ -19,14 +35,14 @@ const config = {
     policy: "sdkVersion",
   },
   orientation: "portrait",
-  icon: "./assets/icon.png",
+  icon: ICON,
   scheme: "maxxxmoveis",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   splash: {
-    image: "./assets/splash.png",
+    image: ICON,
     resizeMode: "contain",
-    backgroundColor: "#0058BB",
+    backgroundColor: "#ffffff",
   },
   androidStatusBar: {
     barStyle: "light-content",
@@ -40,6 +56,7 @@ const config = {
   ios: {
     supportsTablet: false,
     bundleIdentifier: "br.com.maxxxmoveis.app",
+    ...(GOOGLE_SERVICES_IOS ? { googleServicesFile: GOOGLE_SERVICES_IOS } : {}),
     infoPlist: {
       NSCameraUsageDescription: "Usamos a câmera para fotos do perfil.",
       NSPhotoLibraryUsageDescription:
@@ -50,11 +67,9 @@ const config = {
   android: {
     package: "br.com.maxxxmoveis.app",
     versionCode: 1,
-    ...(HAS_GOOGLE_SERVICES
-      ? { googleServicesFile: "./google-services.json" }
-      : {}),
+    ...(GOOGLE_SERVICES_ANDROID ? { googleServicesFile: GOOGLE_SERVICES_ANDROID } : {}),
     adaptiveIcon: {
-      foregroundImage: "./assets/adaptive-icon.png",
+      foregroundImage: ADAPTIVE_ICON,
       backgroundColor: "#0058BB",
     },
     edgeToEdgeEnabled: false,
@@ -62,13 +77,13 @@ const config = {
     permissions: ["POST_NOTIFICATIONS", "RECEIVE_BOOT_COMPLETED", "VIBRATE"],
   },
   web: {
-    favicon: "./assets/favicon.png",
+    favicon: ICON,
   },
   plugins: [
     [
       "expo-notifications",
       {
-        icon: "./assets/notification-icon.png",
+        icon: NOTIFICATION_ICON,
         color: "#0058BB",
         defaultChannel: "maxxx-moveis-default",
       },

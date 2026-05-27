@@ -22,6 +22,16 @@
         "APP_ENV": "development"
       }
     },
+    "production-apk": {
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_API_URL": "https://maxxxmoveis.com.br",
+        "EXPO_PUBLIC_SITE_URL": "https://maxxxmoveis.com.br"
+      }
+    },
     "production": {
       "android": {
         "buildType": "app-bundle"
@@ -30,7 +40,9 @@
         "simulator": false
       },
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_API_URL": "https://maxxxmoveis.com.br",
+        "EXPO_PUBLIC_SITE_URL": "https://maxxxmoveis.com.br"
       }
     }
   },
