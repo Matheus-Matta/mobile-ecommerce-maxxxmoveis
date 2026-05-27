@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "942333819939",
+    "project_id": "stardev-4b4ed",
+    "storage_bucket": "stardev-4b4ed.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:942333819939:android:94dde5b3df1be58174c596",
+        "android_client_info": {
+          "package_name": "br.com.maxxxmoveis.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCykh2UpiNb1t4ITNRujCd2J7FDd9POiRM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
